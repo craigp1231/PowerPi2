@@ -15,7 +15,7 @@ OBJCOPY := objcopy
 PREPROCESSOR_MACROS := NDEBUG RELEASE
 INCLUDE_DIRS := 
 LIBRARY_DIRS := 
-LIBRARY_NAMES := rtlsdr curl wiringPi
+LIBRARY_NAMES := rtlsdr curl
 ADDITIONAL_LINKER_INPUTS := 
 MACOS_FRAMEWORKS := 
 LINUX_PACKAGES := 
@@ -23,7 +23,7 @@ LINUX_PACKAGES :=
 CFLAGS := -ggdb -ffunction-sections -O3
 CXXFLAGS := -ggdb -ffunction-sections -O3
 ASFLAGS := 
-LDFLAGS := -Wl,-gc-sections,-lrt,-lwiringPi,-lwiringPiDev
+LDFLAGS := -Wl,-gc-sections,-lrt
 COMMONFLAGS := 
 
 START_GROUP := -Wl,--start-group
