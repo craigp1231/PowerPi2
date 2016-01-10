@@ -17,7 +17,7 @@ uint32_t freq = DEFAULT_FREQUENCY;
 
 bool Verbose;
 bool TimeFromPi;
-char EmonKey[32];
+char EmonKey[33];
 
 struct sample
 {
