@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
 	}
 	
 	// Read Emon CMS key (if it exists)
-	int pos, c;
+	int pos = 0, c = 0;
 	FILE *f = fopen("emon.key", "r");
 	if (f)
 	{
