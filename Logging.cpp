@@ -24,6 +24,7 @@ int send_to_emon(const char * pname, int value)
 		sprintf(url, "%s?json={%s:{%u}}&apikey=%s", "http://emoncms.org/input/post.json", pname, value, EmonKey);
 	}
 	
+	fprintf(stderr, url);
 
 	curl = curl_easy_init();
 	if (curl) {
