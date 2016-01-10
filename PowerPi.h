@@ -76,4 +76,4 @@ struct protocol_state {
 
 extern bool Verbose;
 extern bool TimeFromPi;
-extern char EmonKey[32];
+extern char EmonKey[33];
