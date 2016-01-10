@@ -10,6 +10,8 @@ int send_to_emon(const char * pname, int value)
 	CURL *curl;
 	CURLcode res;
 	
+	fprintf(stderr, "Emon Key: %s\n", EmonKey);
+	
 	if (strlen(EmonKey) != 32)
 		return -1;
 
@@ -24,7 +26,7 @@ int send_to_emon(const char * pname, int value)
 		sprintf(url, "%s?json={%s:{%u}}&apikey=%s", "http://emoncms.org/input/post.json", pname, value, EmonKey);
 	}
 	
-	fprintf(stderr, url);
+	fprintf(stderr, "%s\n", url);
 
 	curl = curl_easy_init();
 	if (curl) {

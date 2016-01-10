@@ -122,6 +122,8 @@ int main(int argc, char *argv[])
 		} while (c != EOF && c != '\n' && pos < 32);
 		
 		fclose(f);
+		
+		fprintf(stderr, "Emon Key: %s\n", EmonKey);
 	}
 	else
 	{
