@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 	
 	// Read Emon CMS key (if it exists)
 	int pos = 0, c = 0;
-	FILE *f = fopen("emon.key", "r");
+	FILE *f = fopen("/etc/emon.key", "r");
 	if (f)
 	{
 		do
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		fprintf(stderr, "emon.key file not found, will not log to Emon CMS.\n");
+		fprintf(stderr, "/etc/emon.key file not found, will not log to Emon CMS.\n");
 	}
 	
 
