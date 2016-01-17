@@ -4,16 +4,26 @@
 #include <curl/curl.h>
 #include "Logging.h"
 #include "PowerPi.h"
+#include <pthread.h>
 
-int send_to_emon(const char * pname, int value)
+static void *submitURL(void *url)
 {
 	CURL *curl;
-	CURLcode res;
-	
-	//fprintf(stderr, "Emon Key: %s (%u)\n", EmonKey, strlen(EmonKey));
-	
+ 
+	curl = curl_easy_init();
+	curl_easy_setopt(curl, CURLOPT_URL, url);
+	curl_easy_perform(curl);
+	curl_easy_cleanup(curl);
+ 
+	return NULL;
+}
+
+void send_to_emon(const char * pname, int value)
+{	
+	pthread_t tid[1];
+		
 	if (strlen(EmonKey) != 32)
-		return -1;
+		return;
 
 	char url[256];
 
@@ -26,28 +36,10 @@ int send_to_emon(const char * pname, int value)
 		sprintf(url, "%s?json={%s:{%u}}&apikey=%s", "http://emoncms.org/input/post.json", pname, value, EmonKey);
 	}
 	
-	//fprintf(stderr, "%s\n", url);
-
-	curl = curl_easy_init();
-	if (curl) {
-		curl_easy_setopt(curl, CURLOPT_URL, url);
-
-		curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0L);
-		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L);
-
-		res = curl_easy_perform(curl);
-
-		if (res != CURLE_OK)
-		{
-			/*char err[256];
-			sprintf(err, "curl_easy_perform() failed: %s\n",
-				curl_easy_strerror(res));*/
-			//log_string_to_file(err);
-		}
-
-		curl_easy_cleanup(curl);
-	}
-
-	return res;
+	curl_global_init(CURL_GLOBAL_ALL);
+	
+	pthread_create(&tid[0],
+		NULL,
+		submitURL,
+		(void *)url);
 }
