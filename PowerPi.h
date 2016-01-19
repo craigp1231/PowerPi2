@@ -75,5 +75,5 @@ struct protocol_state {
 #endif /* INCLUDE_RTL_433_H_ */
 
 extern bool Verbose;
-extern bool TimeFromPi;
+extern int TimeBuffer;
 extern char EmonKey[33];

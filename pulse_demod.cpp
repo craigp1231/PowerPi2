@@ -96,12 +96,12 @@ int demod_cc_bit_buffer(bitbuffer_t *bitbuffer)
 	bool sensor1Valid = ((packet[2] >> 7) & 1) == 1;
 	uint16_t sensor1Value = ((packet[2] & 127) << 8) | packet[3];
 
-	char devName[10];
-	sprintf(devName, "device_%03X", address);
+	/*char devName[10];
+	sprintf(devName, "device_%03X", address);*/
 	
 	if (sensor1Valid)
 	{
-		send_to_emon(devName, sensor1Value);
+		send_to_emon(address, sensor1Value);
 		
 		if (Verbose)
 		{

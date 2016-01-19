@@ -16,7 +16,7 @@ uint32_t samp_rate = DEFAULT_SAMPLE_RATE;
 uint32_t freq = DEFAULT_FREQUENCY;
 
 bool Verbose;
-bool TimeFromPi;
+int TimeBuffer;
 char EmonKey[33];
 
 struct sample
@@ -95,6 +95,8 @@ int main(int argc, char *argv[])
 	uint8_t *buffer;
 	struct dm_state* demod;
 	
+	TimeBuffer = 6;
+	
 	// Process arguments
 	for (j = 1; j < argc; j++)
 	{
@@ -103,12 +105,15 @@ int main(int argc, char *argv[])
 		if (!strcmp(argv[j], "-v"))
 		{
 			Verbose = true;
+			fprintf(stderr, "Verbose Output On\n", EmonKey);
 		}
-		else if (!strcmp(argv[j], "-t"))
+		else if (!strcmp(argv[j], "-t") && more)
 		{
-			TimeFromPi = true;
+			TimeBuffer = atoi(argv[++j]);
 		}
 	}
+	
+	fprintf(stderr, "Time Buffer: %u secs\n", TimeBuffer);
 	
 	// Read Emon CMS key (if it exists)
 	int pos = 0, c = 0;
