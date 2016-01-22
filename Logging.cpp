@@ -11,15 +11,14 @@ time_t SEND_TIME = 0;
 struct DEVICE_VALUE DEVICE_BUFFER[20];
 unsigned int DEVICE_COUNT = 0;
 
+CURL *curl;
+
 void submitURL(const char *url)
 {
-	CURL *curl;
- 
-	curl = curl_easy_init();
+	curl_easy_reset(curl);
 	curl_easy_setopt(curl, CURLOPT_URL, url);
-	curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
 	curl_easy_perform(curl);
-	curl_easy_cleanup(curl);
+	//curl_easy_cleanup(curl);
 }
 
 static void *process_buffer(void* dCnt)
@@ -63,6 +62,13 @@ void send_to_emon(unsigned short address, unsigned short value)
 	if (SEND_TIME == 0)
 	{
 		curl_global_init(CURL_GLOBAL_ALL);
+		
+		curl = curl_easy_init();
+		curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);						// Timeout in seconds
+		curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);					// If a timeout does occur, dont signal to the app to close
+		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);						// Dont display output
+		curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, 86400);		// 1 day (so it doesnt do a DNS request each minute, saves time)
+		
 		SEND_TIME = time(NULL);
 	}		
 	
