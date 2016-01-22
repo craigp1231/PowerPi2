@@ -1,0 +1,11 @@
+gcc_Debug.h
+gcc_Release.h
+debug.mak
+Makefile
+VisualGDBCache/*
+*.old
+*.vcx*
+*.vgdbsettings
+Debug/*
+Release/*
+obj/*
