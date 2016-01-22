@@ -10,6 +10,8 @@
 time_t SEND_TIME = 0;
 struct DEVICE_VALUE DEVICE_BUFFER[20];
 unsigned int DEVICE_COUNT = 0;
+pthread_t tid[5];
+unsigned char currentThread = 0;
 
 CURL *curl;
 
@@ -81,13 +83,14 @@ void send_to_emon(unsigned short address, unsigned short value)
 	// If the time buffer has elapsed (send to emon)
 	if (time(NULL) - SEND_TIME >= TimeBuffer)
 	{
-		pthread_t tid[1];
-		pthread_create(&tid[0],
+		pthread_create(&tid[currentThread],
 			NULL,
 			process_buffer,
 			(void*)&DEVICE_COUNT);
 		SEND_TIME = time(NULL);
-		
+		currentThread++;
+		if (currentThread == 5)
+			currentThread = 0;
 	}
 	
 }
