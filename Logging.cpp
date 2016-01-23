@@ -7,13 +7,20 @@
 #include <pthread.h>
 
 
-time_t SEND_TIME = 0;
+bool hasInit;
 struct DEVICE_VALUE DEVICE_BUFFER[20];
 unsigned int DEVICE_COUNT = 0;
-pthread_t tid[5];
-unsigned char currentThread = 0;
+pthread_t thread_id;
 
 CURL *curl;
+
+void sleep_milliseconds(uint32_t millis) {
+	struct timespec sleep;
+	sleep.tv_sec = millis / 1000;
+	sleep.tv_nsec = (millis % 1000) * 1000000L;
+	while (clock_nanosleep(CLOCK_MONOTONIC, 0, &sleep, &sleep) && errno == EINTR)
+		;
+}
 
 void submitURL(const char *url)
 {
@@ -23,7 +30,7 @@ void submitURL(const char *url)
 	//curl_easy_cleanup(curl);
 }
 
-static void *process_buffer(void* dCnt)
+void process_buffer()
 {
 	char url[256];
 	char data[256];
@@ -33,7 +40,7 @@ static void *process_buffer(void* dCnt)
 		sprintf(data + strlen(data), ",device_%03X:{%u}", DEVICE_BUFFER[i].device_id, DEVICE_BUFFER[i].device_value);
 	}
 	
-	sprintf(url, "%s?json={%s}&apikey=%s", "http://emoncms.org/input/post.json", data+1, EmonKey);
+	sprintf(url, "%s?json={%s}&apikey=%s", "http://emoncms.org/input/post.json", data + 1, EmonKey);
 	
 	if (Verbose)
 		fprintf(stderr, "URL: %s\n", url);
@@ -42,6 +49,15 @@ static void *process_buffer(void* dCnt)
 	
 	DEVICE_COUNT = 0;
 	memset(DEVICE_BUFFER, 0, 19 * 4);
+}
+
+static void *thread_handler(void* p)
+{
+	while (1)
+	{
+		sleep_milliseconds(TimeBuffer * 1000);			// Wait for data
+		process_buffer();								// Process data
+	}
 }
 
 unsigned int search_for_address(unsigned int address)
@@ -61,7 +77,7 @@ void send_to_emon(unsigned short address, unsigned short value)
 		return;
 	
 	// Init send time
-	if (SEND_TIME == 0)
+	if (!hasInit)
 	{
 		curl_global_init(CURL_GLOBAL_ALL);
 		
@@ -71,26 +87,21 @@ void send_to_emon(unsigned short address, unsigned short value)
 		curl_easy_setopt(curl, CURLOPT_VERBOSE, 0);						// Dont display output
 		curl_easy_setopt(curl, CURLOPT_DNS_CACHE_TIMEOUT, 86400);		// 1 day (so it doesnt do a DNS request each minute, saves time)
 		
-		SEND_TIME = time(NULL);
+		int err = pthread_create(&thread_id,
+			NULL,
+			thread_handler,
+			NULL);
+		if (err && Verbose)
+		{
+			fprintf(stderr, "Thread Error: %u\n", err);
+		}
+		
+		hasInit = true;
 	}		
 	
 	// Add the value to buffer
 	int idx = search_for_address(address);
 	DEVICE_BUFFER[idx].device_id = address;
 	DEVICE_BUFFER[idx].device_value = value;
-	DEVICE_COUNT++;
-	
-	// If the time buffer has elapsed (send to emon)
-	if (time(NULL) - SEND_TIME >= TimeBuffer)
-	{
-		pthread_create(&tid[currentThread],
-			NULL,
-			process_buffer,
-			(void*)&DEVICE_COUNT);
-		SEND_TIME = time(NULL);
-		currentThread++;
-		if (currentThread == 5)
-			currentThread = 0;
-	}
-	
+	DEVICE_COUNT++;	
 }
